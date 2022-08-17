@@ -1,0 +1,29 @@
+package group5.freelancejob;
+
+import group5.freelancejob.services.JobService;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@SpringBootApplication
+public class FreelanceJobApplication {
+
+    public static void main(String[] args) {
+        var appCtx = SpringApplication.run(FreelanceJobApplication.class, args);
+        var jobService = appCtx.getBean(JobService.class);
+        jobService.runJobScheduler();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedMethods("*").allowedOrigins("*");
+            }
+        };
+    }
+
+}

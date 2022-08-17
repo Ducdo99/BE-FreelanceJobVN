@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="group5.freelancejob.mybatis.mapper.JobMyBatisMapper">
+
+    <select id="selectJobFromTitleAndSkill" resultType="RespJobDto">
+        SELECT J.id,
+        J.title,
+        R.fullname as recruiterName,
+        R.id as recruiterId,
+        J.price,
+        J.description,
+        J.duration as duration,
+        J.job_stt AS jobStatusEnum,
+        J.freelancer_rating as freelancerRating,
+        J.recruiter_rating as recruiterRating,
+        J.created_date as createdDate,
+        J.genre_id as genreId
+        FROM Job J
+        <if test="skillIds != null">
+            <if test="skillIds.size() > 0">
+                INNER JOIN
+                (SELECT JS2.job_id
+                FROM Job_Skill JS2
+                INNER JOIN Skill S ON JS2.skill_id = S.id
+                WHERE JS2.skill_id IN
+                <foreach item="sId" collection="skillIds" separator="," open="(" close=")">
+                    #{sId}
+                </foreach>
+                GROUP BY JS2.job_id
+                HAVING (COUNT(JS2.skill_id) = ${skillIds.size})) AS JS ON J.id = JS.job_id
+            </if>
+        </if>
+        <if test="genreId != null">
+            INNER JOIN (SELECT Ge.id
+            from Genre Ge
+            WHERE Ge.id IN (#{genreId})) AS G ON G.id = J.genre_id
+        </if>
+        INNER JOIN Recruiter R ON R.id = J.recruiter_id
+
+        WHERE 1 = 1
+        <if test="title != null and title != ''">
+            <if test="title.length() > 0">
+                AND J.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </if>
+        <if test="status != null">
+            AND J.job_stt = #{status}
+        </if>
+        GROUP BY J.id, J.title, R.fullname, R.id, J.price, J.description, J.duration, J.duration, J.job_stt,
+        J.freelancer_rating, J.recruiter_rating, J.created_date,J.genre_id
+        ORDER BY J.id
+        OFFSET #{offset} ROWS FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+
+    <select id="countSelectJobFromTitleAndSkill" resultType="int">
+        SELECT COUNT(*)
+        FROM (SELECT J.id,
+        J.title,
+        R.fullname as recruiterName,
+        R.id as recruiterId,
+        J.price,
+        J.description,
+        J.duration as duration,
+        J.job_stt AS jobStatusEnum,
+        J.freelancer_rating as freelancerRating,
+        J.recruiter_rating as recruiterRating,
+        J.created_date as createdDate,
+        J.genre_id as genreId
+        FROM Job J
+        <if test="skillIds != null">
+            <if test="skillIds.size() > 0">
+                INNER JOIN
+                (SELECT JS2.job_id
+                FROM Job_Skill JS2
+                INNER JOIN Skill S ON JS2.skill_id = S.id
+                WHERE JS2.skill_id IN
+                <foreach item="sId" collection="skillIds" separator="," open="(" close=")">
+                    #{sId}
+                </foreach>
+                GROUP BY JS2.job_id
+                HAVING (COUNT(JS2.skill_id) = ${skillIds.size})) AS JS ON J.id = JS.job_id
+            </if>
+        </if>
+        <if test="genreId != null">
+            INNER JOIN (SELECT Ge.id
+            from Genre Ge
+            WHERE Ge.id IN (#{genreId})) AS G ON G.id = J.genre_id
+        </if>
+        INNER JOIN Recruiter R ON R.id = J.recruiter_id
+
+        WHERE 1 = 1
+        <if test="title != null and title != ''">
+            <if test="title.length() > 0">
+                AND J.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </if>
+        <if test="status != null">
+            AND J.job_stt = #{status}
+        </if>
+        GROUP BY J.id, J.title, R.fullname, R.id, J.price, J.description, J.duration, J.duration, J.job_stt,
+        J.freelancer_rating, J.recruiter_rating, J.created_date,J.genre_id
+        ) src
+    </select>
+</mapper>

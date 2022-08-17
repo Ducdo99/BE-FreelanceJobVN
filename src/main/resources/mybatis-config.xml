@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="logImpl" value="SLF4J"/>
+    </settings>
+    <typeAliases>
+        <typeAlias type="group5.freelancejob.models.FreelancerAccSkillDto" alias="FreelancerAccSkillDto"/>
+        <typeAlias type="group5.freelancejob.models.RespJobDto" alias="RespJobDto"/>
+        <package name="group5.freelancejob.daos"/>
+    </typeAliases>
+    <typeHandlers>
+        <typeHandler javaType="group5.freelancejob.utils.JobStatus" handler="group5.freelancejob.mybatis.handler.JobStatusHandler" />
+    </typeHandlers>
+
+    <mappers>
+        <mapper resource="xml/Freelancer.xml"/>
+        <mapper resource="xml/Job.xml"/>
+    </mappers>
+</configuration>

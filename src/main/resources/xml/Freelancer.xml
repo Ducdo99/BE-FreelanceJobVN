@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="group5.freelancejob.mybatis.mapper.FreelancerMyBatisMapper">
+
+    <select id="selectFreelancerByIdAndListSkills" resultType="FreelancerAccSkillDto">
+        SELECT fl.id as 'id',
+        fl.fullname as 'name',
+        fl.rating as 'rating',
+        fl.role_at_work as 'roleAtWork',
+        fl.short_description as 'shortDescription',
+        fl.description,
+        A.phone as 'phone',
+        A.email as 'email',
+        A.avatar as 'avatar'
+        FROM Freelancer fl
+        JOIN Account A on A.id = fl.account_id
+        JOIN Portfolio P on fl.id = P.freelancer_id
+        LEFT JOIN Project P2 on P.id = P2.portfolio_id
+        LEFT JOIN Skill_Project SP on P2.id = SP.project_id
+        LEFT JOIN Skill S on S.id = SP.skill_id
+        WHERE
+        1=1
+        <if test="skillIds != null">
+            <if test="skillIds.size() > 0">
+                AND
+                sp.skill_id in
+                <foreach item="sId" collection="skillIds" separator="," open="(" close=")">
+                    #{sId}
+                </foreach>
+            </if>
+        </if>
+        <if test="fullname != null and fullname != ''">
+            <if test="fullname.length() > 0">
+                and fl.fullname like concat('%', #{fullname}, '%')
+            </if>
+        </if>
+
+        group by fl.[id], fl.[fullname], fl.[rating],
+        fl.[role_at_work], fl.[short_description],
+        fl.[description],
+        A.phone, A.email, A.avatar
+        <if test="skillIds != null">
+            <if test="skillIds.size() > 0">having count(*) >= ${skillIds.size}</if>
+        </if>
+        ORDER BY fl.id
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{pageSize} ROWS ONLY
+    </select>
+
+    <select id="countSelectFreelancerByIdAndListSkills" resultType="int">
+        SELECT COUNT(*) FROM (SELECT fl.id as 'id',
+        fl.fullname as 'name',
+        fl.rating as 'rating',
+        fl.role_at_work as 'roleAtWork',
+        fl.short_description as 'shortDescription',
+        fl.description,
+        A.phone as 'phone',
+        A.email as 'email',
+        A.avatar as 'avatar'
+        FROM Freelancer fl
+        JOIN Account A on A.id = fl.account_id
+        JOIN Portfolio P on fl.id = P.freelancer_id
+        LEFT JOIN Project P2 on P.id = P2.portfolio_id
+        LEFT JOIN Skill_Project SP on P2.id = SP.project_id
+        LEFT JOIN Skill S on S.id = SP.skill_id
+        WHERE
+        1=1
+        <if test="skillIds != null">
+            <if test="skillIds.size() > 0">
+                AND
+                sp.skill_id in
+                <foreach item="sId" collection="skillIds" separator="," open="(" close=")">
+                    #{sId}
+                </foreach>
+            </if>
+        </if>
+        <if test="fullname != null and fullname != ''">
+            <if test="fullname.length() > 0">
+                and fl.fullname like concat('%', #{fullname}, '%')
+            </if>
+        </if>
+
+        group by fl.[id], fl.[fullname], fl.[rating],
+        fl.[role_at_work], fl.[short_description],
+        fl.[description],
+        A.phone, A.email, A.avatar
+        <if test="skillIds != null">
+            <if test="skillIds.size() > 0">having count(*) >= ${skillIds.size}</if>
+        </if>) src
+    </select>
+</mapper>
